@@ -5,7 +5,7 @@ server {
     location = /favicon.ico { access_log off; log_not_found off; }
     
     location /static/ {
-        root /var/www/Trankeador_Definitivo;
+        alias /var/www/Trankeador_Definitivo/staticfiles/;
     }
 
     location / {
