@@ -123,6 +123,26 @@ def dashboard_view(request):
         'total_clicks': total_clicks
     })
 
+from django.http import JsonResponse
+
+@login_required
+def clicks_api(request):
+    """Endpoint JSON para polling de cliques em tempo real."""
+    user = request.user
+    links = TrackedLink.objects.filter(user=user).annotate(click_count=Count('clicks'))
+    total_clicks = ClickLog.objects.filter(tracked_link__user=user).count()
+    total_links = TrackedLink.objects.filter(user=user).count()
+    
+    link_data = {
+        str(link.id): link.click_count for link in links
+    }
+    
+    return JsonResponse({
+        'total_clicks': total_clicks,
+        'total_links': total_links,
+        'links': link_data,
+    })
+
 class UserOwnedMixin(LoginRequiredMixin):
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user)

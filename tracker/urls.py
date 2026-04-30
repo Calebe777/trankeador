@@ -42,4 +42,7 @@ urlpatterns = [
     # Encurtador e QR
     path('go/<str:shortcode>/', redirect_view, name='redirect'),
     path('qr/<str:shortcode>/', generate_qr, name='qr'),
+
+    # API de cliques em tempo real
+    path('api/clicks/', core_views.clicks_api, name='clicks_api'),
 ]

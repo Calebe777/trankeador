@@ -1,9 +1,15 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-<div class="mb-10">
-    <h1 class="text-3xl font-bold text-white mb-2">Bem-vindo, {{ user.first_name|default:user.username }}!</h1>
-    <p class="text-slate-400">Aqui está o resumo dos seus links rastreados.</p>
+<div class="mb-10 flex items-center justify-between">
+    <div>
+        <h1 class="text-3xl font-bold text-white mb-2">Bem-vindo, {{ user.first_name|default:user.username }}!</h1>
+        <p class="text-slate-400">Aqui está o resumo dos seus links rastreados.</p>
+    </div>
+    <div class="flex items-center gap-2 text-xs text-slate-500">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block"></span>
+        Ao vivo
+    </div>
 </div>
 
 <!-- Stats Grid -->
@@ -14,7 +20,7 @@
         </div>
         <div>
             <p class="text-slate-400 text-sm font-medium mb-1">Total de Links Gerados</p>
-            <h2 class="text-3xl font-bold text-white">{{ total_links }}</h2>
+            <h2 class="text-3xl font-bold text-white" id="stat-total-links">{{ total_links }}</h2>
         </div>
     </div>
 
@@ -24,7 +30,7 @@
         </div>
         <div>
             <p class="text-slate-400 text-sm font-medium mb-1">Total de Cliques</p>
-            <h2 class="text-3xl font-bold text-white">{{ total_clicks }}</h2>
+            <h2 class="text-3xl font-bold text-white" id="stat-total-clicks">{{ total_clicks }}</h2>
         </div>
     </div>
 </div>
@@ -49,7 +55,8 @@
         <div class="space-y-4">
             {% for link in links %}
             <div class="link-card bg-slate-800/50 rounded-xl p-4 md:p-5 border border-slate-700/50 hover:border-indigo-500/30 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
-                 data-search="{{ link.page.name }} {{ link.campaign.name }} {{ link.person.name }} {{ link.shortcode }}">
+                 data-search="{{ link.page.name }} {{ link.campaign.name }} {{ link.person.name }} {{ link.shortcode }}"
+                 data-link-id="{{ link.id }}">
                 <div class="flex-1">
                     <div class="flex items-center gap-2 mb-2">
                         <span class="px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-semibold">{{ link.campaign.name }}</span>
@@ -58,8 +65,10 @@
                     <h4 class="text-white font-medium mb-1">{{ link.page.name }}</h4>
                     <div class="flex items-center gap-4">
                         <code class="text-slate-400 text-sm" id="link-{{ link.id }}">{{ request.scheme }}://{{ request.get_host }}/go/{{ link.shortcode }}</code>
-                        <span class="text-emerald-400 text-sm font-medium flex items-center bg-emerald-500/10 px-2.5 py-0.5 rounded-full">
-                            <i class="fas fa-mouse-pointer mr-1.5 text-xs"></i> {{ link.click_count }} cliques
+                        <span class="click-badge text-emerald-400 text-sm font-medium flex items-center bg-emerald-500/10 px-2.5 py-0.5 rounded-full transition-all"
+                              data-link-id="{{ link.id }}">
+                            <i class="fas fa-mouse-pointer mr-1.5 text-xs"></i>
+                            <span class="click-count">{{ link.click_count }}</span> cliques
                         </span>
                     </div>
                 </div>
@@ -85,6 +94,7 @@
 </div>
 
 <script>
+    // === Busca em tempo real ===
     document.getElementById('searchInput').addEventListener('input', function(e) {
         const term = e.target.value.toLowerCase();
         document.querySelectorAll('.link-card').forEach(card => {
@@ -92,5 +102,47 @@
             card.style.display = text.includes(term) ? 'flex' : 'none';
         });
     });
+
+    // === Polling de cliques ao vivo (a cada 5 segundos) ===
+    function pulse(element) {
+        element.classList.add('scale-110', 'text-emerald-300');
+        setTimeout(() => element.classList.remove('scale-110', 'text-emerald-300'), 600);
+    }
+
+    function updateClicks() {
+        fetch('/api/clicks/')
+            .then(res => res.json())
+            .then(data => {
+                // Atualizar totais do topo
+                const totalLinksEl = document.getElementById('stat-total-links');
+                const totalClicksEl = document.getElementById('stat-total-clicks');
+
+                if (totalLinksEl && parseInt(totalLinksEl.innerText) !== data.total_links) {
+                    totalLinksEl.innerText = data.total_links;
+                    pulse(totalLinksEl);
+                }
+                if (totalClicksEl && parseInt(totalClicksEl.innerText) !== data.total_clicks) {
+                    totalClicksEl.innerText = data.total_clicks;
+                    pulse(totalClicksEl);
+                }
+
+                // Atualizar cliques de cada link individualmente
+                document.querySelectorAll('.click-badge').forEach(badge => {
+                    const linkId = badge.getAttribute('data-link-id');
+                    if (data.links[linkId] !== undefined) {
+                        const countEl = badge.querySelector('.click-count');
+                        const newCount = data.links[linkId];
+                        if (parseInt(countEl.innerText) !== newCount) {
+                            countEl.innerText = newCount;
+                            pulse(badge);
+                        }
+                    }
+                });
+            })
+            .catch(err => console.error('Polling error:', err));
+    }
+
+    // Inicia o polling a cada 5 segundos
+    setInterval(updateClicks, 5000);
 </script>
 {% endblock %}
