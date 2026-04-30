@@ -132,18 +132,22 @@ class UserOwnedMixin(LoginRequiredMixin):
         return super().form_valid(form)
 
 # === PAGES ===
-class PageListView(UserOwnedMixin, ListView):
+class PageListView(LoginRequiredMixin, ListView):
     model = Page
     template_name = 'core/list.html'
     context_object_name = 'items'
-    extra_context = {'title': 'Minhas Páginas', 'create_url': 'page_create'}
+    extra_context = {'title': 'Páginas Globais', 'create_url': 'page_create'}
 
-class PageCreateView(UserOwnedMixin, CreateView):
+class PageCreateView(LoginRequiredMixin, CreateView):
     model = Page
     fields = ['name', 'target_url']
     template_name = 'core/form.html'
     success_url = reverse_lazy('page_list')
     extra_context = {'title': 'Nova Página', 'back_url': reverse_lazy('page_list')}
+    
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
 
 # === CAMPAIGNS ===
 class CampaignListView(UserOwnedMixin, ListView):
@@ -194,8 +198,8 @@ class TrackedLinkCreateView(UserOwnedMixin, CreateView):
     
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        # Filtrar os selects apenas para itens do usuário logado
-        form.fields['page'].queryset = Page.objects.filter(user=self.request.user)
+        # Páginas são globais, Campanhas e Pessoas permanecem privadas
+        form.fields['page'].queryset = Page.objects.all()
         form.fields['campaign'].queryset = Campaign.objects.filter(user=self.request.user)
         form.fields['person'].queryset = Person.objects.filter(user=self.request.user)
         return form
