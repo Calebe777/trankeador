@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Tracker Acadiprev</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0.2) 0, transparent 50%);
+            background-attachment: fixed;
+        }
+        
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 selection:bg-indigo-500 selection:text-white">
+
+    <div class="glass-panel w-full max-w-md rounded-3xl p-8 sm:p-10 relative overflow-hidden">
+        <!-- Decorator -->
+        <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-500/20 to-purple-500/0 rounded-bl-full -mr-4 -mt-4 pointer-events-none"></div>
+        
+        <div class="text-center mb-8 relative z-10">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-indigo-500/10 border border-indigo-500/20 mb-4 shadow-[0_0_15px_rgba(99,102,241,0.2)]">
+                <i class="fas fa-link text-2xl text-indigo-400"></i>
+            </div>
+            <h1 class="text-3xl font-extrabold text-white mb-2">Trankeador <span class="gradient-text">Pro</span></h1>
+            <p class="text-slate-400 text-sm">Acesse o sistema interno da Acadiprev</p>
+        </div>
+
+        <form method="post" class="space-y-6 relative z-10">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+            <div class="bg-red-500/10 border border-red-500/50 text-red-400 p-3 rounded-xl text-sm flex items-start">
+                <i class="fas fa-exclamation-circle mt-0.5 mr-2"></i>
+                <p>Usuário ou senha incorretos. Tente novamente.</p>
+            </div>
+            {% endif %}
+
+            <div>
+                <label for="id_username" class="block text-sm font-medium text-slate-300 mb-1.5">Usuário</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <i class="fas fa-user text-slate-500"></i>
+                    </div>
+                    <input type="text" name="username" id="id_username" required autofocus
+                        class="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all">
+                </div>
+            </div>
+
+            <div>
+                <label for="id_password" class="block text-sm font-medium text-slate-300 mb-1.5">Senha</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                        <i class="fas fa-lock text-slate-500"></i>
+                    </div>
+                    <input type="password" name="password" id="id_password" required
+                        class="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full py-3.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/20 transition-all hover:shadow-indigo-500/40 hover:-translate-y-0.5 mt-2 flex justify-center items-center">
+                Entrar no Sistema <i class="fas fa-arrow-right ml-2 text-sm"></i>
+            </button>
+            <input type="hidden" name="next" value="{{ next }}" />
+        </form>
+    </div>
+
+</body>
+</html>

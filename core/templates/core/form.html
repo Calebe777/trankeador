@@ -1,0 +1,33 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="mb-8">
+    <a href="{{ back_url }}" class="text-indigo-400 hover:text-indigo-300 font-medium mb-4 inline-flex items-center">
+        <i class="fas fa-arrow-left mr-2"></i> Voltar
+    </a>
+    <h1 class="text-3xl font-bold text-white">{{ title }}</h1>
+</div>
+
+<div class="glass-panel rounded-2xl p-6 md:p-8 max-w-2xl border border-slate-700/50">
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        {% if form.errors %}
+        <div class="bg-red-500/10 border border-red-500/50 text-red-400 p-4 rounded-xl text-sm mb-6">
+            <p class="font-bold mb-2">Por favor, corrija os erros abaixo:</p>
+            {{ form.errors }}
+        </div>
+        {% endif %}
+
+        <div class="django-form-container">
+            {{ form.as_p }}
+        </div>
+
+        <div class="pt-4 border-t border-slate-700/50 flex justify-end">
+            <button type="submit" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-colors shadow-lg shadow-indigo-500/20">
+                Salvar <i class="fas fa-check ml-2"></i>
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

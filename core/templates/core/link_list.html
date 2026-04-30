@@ -1,0 +1,81 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+        <h1 class="text-3xl font-bold text-white mb-2">{{ title }}</h1>
+        <p class="text-slate-400">Aqui estão os links encurtados que você já gerou.</p>
+    </div>
+    <a href="{% url create_url %}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium rounded-xl transition-colors shadow-lg shadow-indigo-500/20">
+        <i class="fas fa-plus mr-2"></i> Criar Novo Link
+    </a>
+</div>
+
+<div class="space-y-4">
+    {% if items %}
+        {% for link in items %}
+        <div class="glass-panel rounded-2xl p-5 border border-slate-700/50 hover:border-indigo-500/30 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-semibold" title="Campanha">
+                        <i class="fas fa-bullhorn mr-1 text-[10px]"></i> {{ link.campaign.name }}
+                    </span>
+                    <span class="px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-400 text-xs font-semibold" title="Pessoa">
+                        <i class="fas fa-user mr-1 text-[10px]"></i> {{ link.person.name }}
+                    </span>
+                </div>
+                <h4 class="text-white font-medium text-lg mb-1" title="Página Destino">{{ link.page.name }}</h4>
+                <div class="flex items-center text-slate-400 text-sm gap-4">
+                    <span><i class="fas fa-clock mr-1.5 opacity-70"></i> {{ link.created_at|date:"d/m/Y H:i" }}</span>
+                    <span class="text-emerald-400 font-medium bg-emerald-500/10 px-2 py-0.5 rounded-full"><i class="fas fa-mouse-pointer mr-1 text-xs"></i> {{ link.click_count }} cliques</span>
+                </div>
+            </div>
+            
+            <div class="bg-slate-900/60 rounded-xl p-3 flex items-center border border-slate-700/50">
+                <code class="text-indigo-300 font-mono text-sm truncate mr-4" id="link-{{ link.id }}">
+                    {{ request.scheme }}://{{ request.get_host }}/go/{{ link.shortcode }}
+                </code>
+                <div class="flex gap-2 border-l border-slate-700/50 pl-4">
+                    <button onclick="copyLink('link-{{ link.id }}')" class="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors tooltip" title="Copiar Link">
+                        <i class="far fa-copy"></i>
+                    </button>
+                    <a href="/qr/{{ link.shortcode }}" download="qr_{{ link.shortcode }}.png" class="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors tooltip" title="Baixar QR">
+                        <i class="fas fa-qrcode"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="glass-panel rounded-2xl text-center py-16 border border-slate-700/50">
+            <i class="fas fa-link text-4xl text-slate-600 mb-4 block"></i>
+            <h4 class="text-lg font-medium text-slate-300 mb-2">Nenhum link rastreado</h4>
+            <p class="text-slate-500 mb-6">Crie suas páginas e campanhas primeiro, depois gere seus links curtos aqui.</p>
+            <a href="{% url create_url %}" class="text-indigo-400 hover:text-indigo-300 font-medium">
+                Criar o primeiro <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-5 right-5 bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 px-6 py-3 rounded-xl shadow-lg flex items-center transition-all duration-300 opacity-0 pointer-events-none translate-y-4 z-50">
+    <i class="fas fa-check-circle mr-2"></i>
+    <span>Link copiado com sucesso!</span>
+</div>
+
+<script>
+    function copyLink(elementId) {
+        const linkText = document.getElementById(elementId).innerText.trim();
+        navigator.clipboard.writeText(linkText).then(() => {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
+            }, 3000);
+        });
+    }
+</script>
+{% endblock %}

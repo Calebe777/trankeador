@@ -1,0 +1,8 @@
+[Unit]
+Description=gunicorn socket para o Trankeador
+
+[Socket]
+ListenStream=/run/tracker.sock
+
+[Install]
+WantedBy=sockets.target
