@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="mb-10">
-    <h1 class="text-3xl font-bold text-white mb-2">Bem-vindo, {{ user.first_name|default:user.username }}! </h1>
+    <h1 class="text-3xl font-bold text-white mb-2">Bem-vindo, {{ user.first_name|default:user.username }}!</h1>
     <p class="text-slate-400">Aqui está o resumo dos seus links rastreados.</p>
 </div>
 
@@ -17,7 +17,7 @@
             <h2 class="text-3xl font-bold text-white">{{ total_links }}</h2>
         </div>
     </div>
-    
+
     <div class="glass-panel rounded-2xl p-6 flex items-center">
         <div class="w-14 h-14 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl mr-5">
             <i class="fas fa-mouse-pointer"></i>
@@ -36,8 +36,8 @@
         <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <div class="relative">
                 <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                <input type="text" id="searchInput" placeholder="Pesquisar..." 
-                    class="w-full sm:w-48 pl-9 pr-3 py-1.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white text-xs focus:outline-none focus:border-indigo-500/50 transition-all">
+                <input type="text" id="searchInput" placeholder="Pesquisar links..."
+                    class="w-full sm:w-56 pl-9 pr-3 py-2 bg-slate-900/50 border border-slate-700/50 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500/50 transition-all">
             </div>
             <a href="{% url 'link_create' %}" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium rounded-xl transition-colors whitespace-nowrap text-center">
                 <i class="fas fa-plus mr-1"></i> Criar Novo Link
@@ -58,15 +58,17 @@
                     <h4 class="text-white font-medium mb-1">{{ link.page.name }}</h4>
                     <div class="flex items-center gap-4">
                         <code class="text-slate-400 text-sm" id="link-{{ link.id }}">{{ request.scheme }}://{{ request.get_host }}/go/{{ link.shortcode }}</code>
-                        <span class="text-emerald-400 text-sm font-medium flex items-center bg-emerald-500/10 px-2.5 py-0.5 rounded-full"><i class="fas fa-mouse-pointer mr-1.5 text-xs"></i> {{ link.click_count }} cliques</span>
+                        <span class="text-emerald-400 text-sm font-medium flex items-center bg-emerald-500/10 px-2.5 py-0.5 rounded-full">
+                            <i class="fas fa-mouse-pointer mr-1.5 text-xs"></i> {{ link.click_count }} cliques
+                        </span>
                     </div>
                 </div>
-                
+
                 <div class="flex items-center gap-2">
-                    <button onclick="copyLink('link-{{ link.id }}')" class="p-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors tooltip" title="Copiar Link">
+                    <button onclick="copyLink('link-{{ link.id }}')" class="p-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white rounded-lg transition-colors" title="Copiar Link">
                         <i class="far fa-copy"></i>
                     </button>
-                    <a href="/qr/{{ link.shortcode }}" download class="p-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors tooltip" title="Baixar QR Code">
+                    <a href="/qr/{{ link.shortcode }}" download class="p-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 hover:text-white rounded-lg transition-colors" title="Baixar QR Code">
                         <i class="fas fa-qrcode"></i>
                     </a>
                 </div>
@@ -83,18 +85,11 @@
 </div>
 
 <script>
-    // Filtragem em tempo real
     document.getElementById('searchInput').addEventListener('input', function(e) {
         const term = e.target.value.toLowerCase();
-        const cards = document.querySelectorAll('.link-card');
-        
-        cards.forEach(card => {
-            const searchableText = card.getAttribute('data-search').toLowerCase();
-            if (searchableText.includes(term)) {
-                card.style.display = 'flex';
-            } else {
-                card.style.display = 'none';
-            }
+        document.querySelectorAll('.link-card').forEach(card => {
+            const text = card.getAttribute('data-search').toLowerCase();
+            card.style.display = text.includes(term) ? 'flex' : 'none';
         });
     });
 </script>
