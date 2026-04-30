@@ -67,10 +67,7 @@
     {% endif %}
 </div>
 
-<!-- Toast -->
-<div id="toast" class="fixed bottom-5 right-5 bg-emerald-500/20 border border-emerald-500/50 text-emerald-400 px-6 py-3 rounded-xl shadow-lg flex items-center transition-all duration-300 opacity-0 pointer-events-none translate-y-4 z-50">
-    <i class="fas fa-check-circle mr-2"></i>
-    <span>Link copiado com sucesso!</span>
+    {% endif %}
 </div>
 
 <script>
@@ -88,43 +85,5 @@
             }
         });
     });
-
-    function copyLink(elementId) {
-        const linkText = document.getElementById(elementId).innerText.trim();
-        
-        const showToast = () => {
-            const toast = document.getElementById('toast');
-            toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
-            toast.classList.add('opacity-100', 'translate-y-0');
-            setTimeout(() => {
-                toast.classList.remove('opacity-100', 'translate-y-0');
-                toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none');
-            }, 3000);
-        };
-
-        // Fallback para HTTP (sem SSL)
-        if (!navigator.clipboard) {
-            const textArea = document.createElement("textarea");
-            textArea.value = linkText;
-            // Garantir que o textarea não apareça mas esteja no DOM
-            textArea.style.position = "fixed";
-            textArea.style.left = "-9999px";
-            textArea.style.top = "0";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) showToast();
-            } catch (err) {
-                console.error('Erro ao copiar link', err);
-            }
-            document.body.removeChild(textArea);
-            return;
-        }
-
-        // Método moderno para HTTPS
-        navigator.clipboard.writeText(linkText).then(showToast);
-    }
 </script>
 {% endblock %}
